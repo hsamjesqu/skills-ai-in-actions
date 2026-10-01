@@ -1,25 +1,29 @@
 name: Ask AI
+ 
 on:
-  workflow_dispatch:
-
-permissions:
-  models: read
-
+  workflow_dispatch
+ 
 jobs:
   ask-ai:
     runs-on: ubuntu-latest
-
+ 
     steps:
-      - name: AI Inference
-        id: ai-response
-        uses: actions/ai-inference@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            Give me a programming joke.
-
-      - name: Display AI Response
+      - name: Call OpenAI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          echo "## 🤖 AI Response" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.ai-response.outputs.response }}" >> $GITHUB_STEP_SUMMARY
+          response=$(curl -sS https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "model": "gpt-4o-mini",
+              "messages": [
+                {"role": "user", "content": "Give me a programming joke."}
+              ],
+              "temperature": 0.7
+            }')
+ 
+          joke=$(echo "$response" | jq -r '.choices[0].message.content')
+          echo "## 🤖 AI Response" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "$joke" >> "$GITHUB_STEP_SUMMARY"
