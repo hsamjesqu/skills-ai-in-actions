@@ -40,6 +40,7 @@ jobs:
               --arg system 'You are a GitHub issue assistant. Your task is to analyze newly opened issues for completeness. Provide concise, helpful suggestions, ask clarifying questions, and identify any missing information that would help resolve the issue faster. Always respond with ready-to-use markdown content with no code blocks. Sign off as AI assistant.' \
               --arg prompt "$prompt" \
               '{
+                model: "openai/gpt-4o-mini",
                 messages: [
                   {
                     role: "system",
