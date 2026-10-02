@@ -5,7 +5,6 @@ on:
     types: [opened]
 
 permissions:
-  models: read
   issues: write
 
 jobs:
@@ -17,7 +16,7 @@ jobs:
       - name: Analyze issue with GitHub Models
         id: ai-response
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
@@ -40,7 +39,7 @@ jobs:
               --arg system 'You are a GitHub issue assistant. Your task is to analyze newly opened issues for completeness. Provide concise, helpful suggestions, ask clarifying questions, and identify any missing information that would help resolve the issue faster. Always respond with ready-to-use markdown content with no code blocks. Sign off as AI assistant.' \
               --arg prompt "$prompt" \
               '{
-                model: "openai/gpt-4o-mini",
+                model: "gpt-4o-mini",
                 messages: [
                   {
                     role: "system",
@@ -56,8 +55,8 @@ jobs:
               }' |
             curl --fail-with-body --silent --show-error \
               -X POST \
-              "https://models.github.ai/inference/chat/completions" \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
+              "https://api.openai.com/v1/chat/completions" \
+              -H "Authorization: Bearer ${OPENAI_API_KEY}" \
               -H "Content-Type: application/json" \
               --data @-
           )
